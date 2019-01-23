@@ -3,8 +3,11 @@
 __VERSION__ = '0.1'
 
 import argparse
-import itertools
 import logging
+try:
+    from itertools import zip_longest as zip_longest
+except:
+    from itertools import izip_longest as zip_longest
 
 def read_args():
     """ Read command line arguments
@@ -245,7 +248,7 @@ def main():
         # - mower initial position & orientation
         # - mower moves list
         mowers = []
-        for initial_position, moves_list in itertools.zip_longest(*[input_file]*2):
+        for initial_position, moves_list in zip_longest(*[input_file]*2):
             if moves_list is None:
                 # If we don't have enough lines for current mower
                 # That means we reached the end of the line
