@@ -15,6 +15,7 @@ def read_args():
     description = 'Mower command line switches'
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-f", "--file", help="File with move instructions", required=True)
+    parser.add_argument("-d", "--debug", help="Enable debug logging", dest='debug', action='store_true')
     return parser.parse_args()
 
 def init_lawn(horizontal, vertical):
@@ -210,9 +211,9 @@ def move_mower(lawn_map, mower):
         # Check new position
         # Possibly get IndexError when trying to go outside of the map
         #              ValueError if next location is already occupied by another mower
-        print("Current position: %s. Next position: %s after move %s)" % (mower["position"], (str(new_x), str(new_y), new_orientation), move))
+        logging.debug("Current position: %s. Next position: %s after move %s)" % (mower["position"], (str(new_x), str(new_y), new_orientation), move))
         mower["position"] = (str(new_x), str(new_y), new_orientation)
-    print("Final   position: %s" % str(mower["position"]))
+    logging.debug("Final   position: %s" % str(mower["position"]))
 
     return lawn_map, mower
 
@@ -231,6 +232,8 @@ def main():
     """
 
     args = read_args()
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
     with open(args.file) as input_file:
         # First line is lawn size
         (lawn_size_horizontal, lawn_size_vertical) = tuple(
@@ -247,11 +250,11 @@ def main():
                 # If we don't have enough lines for current mower
                 # That means we reached the end of the line
                 # Therefore, we can safely exit loop
-                print("Not enough line. Skipping mower")
+                logging.debug("Not enough line. Skipping mower")
                 break
             mower_initial_position = tuple(x for x in initial_position.rstrip().split(" "))
             mower_moves_list = moves_list.replace(" ", "").rstrip()
-            print("Initializing mower")
+            logging.debug("Initializing mower")
             try:
                 lawn_map, mower = init_mower(lawn_map, mower_initial_position, mower_moves_list)
             except ValueError as err:
@@ -261,7 +264,7 @@ def main():
                 print(err)
                 continue
             mowers.append(mower)
-            print("Mower %s created" % str(len(mowers)))
+            logging.debug("Mower %s created" % str(len(mowers)))
             try:
                 lawn_map, mower = move_mower(lawn_map, mower)
             except ValueError as err:
