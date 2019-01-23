@@ -79,7 +79,7 @@ def init_mower(lawn_map, mower_initial_position, mower_moves_list):
 
     # Initialize mower
     mower = {"position": mower_initial_position, "movelist": mower_moves_list}
-    # Mark position filled on the map
+    # Mark mower's position occupied on the map
     lawn_map[x][y] = 1
 
     return lawn_map, mower
@@ -161,7 +161,9 @@ def get_next_position(new_x, new_y, orientation):
     elif orientation == "W":
         new_x = new_x - 1
     else:
-        raise ValueError("Invalid orientation. Got %s, expected one of [N, E, S, W]" % orientation)
+        raise ValueError(
+            "Invalid orientation. Got %s, expected one of [N, E, S, W]" % orientation
+        )
 
     return str(new_x), str(new_y)
 
@@ -193,17 +195,23 @@ def move_mower(lawn_map, mower):
         elif move in ["F"]:
             # Moving without changing orientation
             # Get new position
-            # Possibly got an error when passing bad orientation as argument
+            # Possible error when passing bad orientation as argument
             try:
                 new_x, new_y = get_next_position(int(x), int(y), orientation)
             except ValueError as err:
                 # mower next position is already occupied.
-                # Cancelling the move
+                # Cancelling the move, but continue processing
                 print(err)
                 continue
             try:
+                # Check that next position is valid
+                # Possible error if position outside of the map
+                # or position already occupied by another mower
                 check_new_position(lawn_map, int(new_x), int(new_y))
             except Exception as err:
+                # Either position is outside the map,
+                # or new position is already occupied by another mower
+                # Cancel the move, but continue processing
                 print(err)
                 continue
             # Move succeeded. Freeing old map location
@@ -214,8 +222,11 @@ def move_mower(lawn_map, mower):
         # Check new position
         # Possibly get IndexError when trying to go outside of the map
         #              ValueError if next location is already occupied by another mower
-        logging.debug("Current position: %s. Next position: %s after move %s)" % (mower["position"], (str(new_x), str(new_y), new_orientation), move))
-        mower["position"] = (str(new_x), str(new_y), new_orientation)
+        logging.debug(
+            "Current position: %s. Next position: %s after move %s)" %
+            (mower["position"], (str(new_x), str(new_y), new_orientation), move)
+        )
+        mower["position"] = (new_x, new_y, new_orientation)
     logging.debug("Final   position: %s" % str(mower["position"]))
 
     return lawn_map, mower
@@ -223,8 +234,8 @@ def move_mower(lawn_map, mower):
 def main():
     """ Read input file and process informations
 
-    It initialize lawn map and iterate on mower's to create them, place them on the map
-    and process moves.
+    It initialize lawn map and iterate on mower's to create them,
+    place them on the map and process moves.
 
     First line from input file is lawn map size
     Others lines are grouped 2 by 2 and mean:
@@ -234,9 +245,11 @@ def main():
     Before exit, mowers' status is displayed
     """
 
+    # Process command line arguments and setup logging verbosity
     args = read_args()
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+
     with open(args.file) as input_file:
         # First line is lawn size
         (lawn_size_horizontal, lawn_size_vertical) = tuple(
@@ -247,37 +260,37 @@ def main():
         # Next lines are grouped 2 by 2 which define:
         # - mower initial position & orientation
         # - mower moves list
-        mowers = []
+        mowers = 0
         for initial_position, moves_list in zip_longest(*[input_file]*2):
+            mowers += 1
             if moves_list is None:
                 # If we don't have enough lines for current mower
                 # That means we reached the end of the line
                 # Therefore, we can safely exit loop
                 logging.debug("Not enough line. Skipping mower")
                 break
+            logging.debug("Initializing mower")
+            # Extract moxer's position, orientation and moves' list from input file
             mower_initial_position = tuple(x for x in initial_position.rstrip().split(" "))
             mower_moves_list = moves_list.replace(" ", "").rstrip()
-            logging.debug("Initializing mower")
             try:
+                # Initialize mower
                 lawn_map, mower = init_mower(lawn_map, mower_initial_position, mower_moves_list)
             except ValueError as err:
-                print(err)
+                print("Mower %d: %s" % (mowers, err))
                 continue
             except IndexError as err:
-                print(err)
+                print("Mower %d: %s" % (mowers, err))
                 continue
-            mowers.append(mower)
-            logging.debug("Mower %s created" % str(len(mowers)))
+            logging.debug("Mower %d created" % mowers)
             try:
                 lawn_map, mower = move_mower(lawn_map, mower)
             except ValueError as err:
-                print(err)
-                break
-            if mower is not None:
-                mowers[len(mowers)-1] = mower
-
-        for i in range(len(mowers)):
-            print(" ".join(mowers[i]["position"]))
+                print("Mower %d: %s" % (mowers, err))
+                continue
+            # Mower's moves' list processed.
+            # Print final mower's position & orientation
+            print(" ".join(mower["position"]))
 
 if __name__ == '__main__':
     main()
