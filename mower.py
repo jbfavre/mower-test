@@ -123,7 +123,7 @@ def check_new_position(pos_x, pos_y, pos_o, lawn_map=None):
         )
     if lawn_map is not None:
         try:
-            cur_value = lawn_map[pos_x][pos_y]
+            lawn_map[pos_x][pos_y]
         except:
             raise IndexError("Can not go out of the map")
         try:
@@ -148,11 +148,17 @@ def get_next_orientation(orientation, move):
     """
 
     orientation_list = "NESW"
-    orientation_index = orientation_list.index(orientation)
+    try:
+        orientation_index = orientation_list.index(orientation)
+    except ValueError:
+        raise ValueError(
+            "Invalid orientation. Got %s, expected one of [N, E, S, W]" % orientation
+        )
+    offset = orientation_index
     if move == "L":
-        offset = int(orientation_index - 1)
+        offset = orientation_index - 1
     if move == "R":
-        offset = int(orientation_index + 1)
+        offset = orientation_index + 1
 
     return orientation_list[(len(orientation_list) + offset) % len(orientation_list)]
 
