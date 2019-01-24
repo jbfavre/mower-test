@@ -1,29 +1,3 @@
-#def check_new_position(lawn_map, x, y):
-#    """ Check new position validity
-#
-#    This method checks new position validity with 2 rules:
-#    - next position should not be outside of the map.  
-#    It tries to read next position value. If we're outside of the map,
-#    this will trigger an IndexError exception
-#    - next position must not be already occupied.
-#    We use assertion for that, assuming next position value is None.
-#    If position is already occupied by another mower, it triggers an AssertionError exception
-#
-#    Parameters:
-#        lawn_map (list): list of lawn columns
-#        x (int): mower's horizontal coordinate
-#        y (int): mower's vertical coordinate
-#    """
-#
-#    try:
-#        cur_value = lawn_map[x][y]
-#    except:
-#        raise IndexError("check_new_position: Can not go out of the map")
-#    try:
-#        assert(lawn_map[x][y] is None)
-#    except:
-#        raise ValueError("check_new_position: Position already occupied by another mower")
-
 import pytest
 
 from mower import check_new_position
