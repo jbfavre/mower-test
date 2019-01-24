@@ -4,7 +4,8 @@ import sys
 import pytest
 
 try:
-    coverage_options = ['--cov=mower', '--cov-report', 'term']
+    import pytest_cov
+    coverage_options = ['--cov=mower', '--cov-report=term']
 except ImportError:
     coverage_options = []
 try:

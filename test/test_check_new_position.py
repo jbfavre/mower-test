@@ -29,32 +29,29 @@ import pytest
 from mower import check_new_position
 
 def generate_empty_map():
-    EMPTY_MAP = []
-    for i in range(12):
-        EMPTY_MAP.append([None] * 15)
-    return EMPTY_MAP
+    return [[None] * 15 for num in range(12)]
 
 def test_check_new_position():
     NEW_POSITION = [
-        (0, 0),
-        (4, 2),
-        (5, 7)
+        (0, 0, "N", generate_empty_map()),
+        (4, 2, "E", generate_empty_map()),
+        (5, 7, "S", None)
     ]
     for POSITION in NEW_POSITION:
-        x, y = POSITION
-        check_new_position(generate_empty_map(), x, y)
+        pos_x, pos_y, pos_o, map = POSITION
+        check_new_position(pos_x, pos_y, pos_o, map)
 
 def test_check_new_position_invalid_outside_map():
     NEW_POSITION = [
-        (21, 2),
-        (1, 22),
-        (21, 22)
+        (21, 2, "N", generate_empty_map()),
+        (1, 22, "E", generate_empty_map()),
+        (21, 22, "S", generate_empty_map()),
     ]
     for POSITION in NEW_POSITION:
-        x, y = POSITION
+        x, y, pos_o, map = POSITION
         with pytest.raises(IndexError) as err:
-            check_new_position(generate_empty_map(), x, y)
-        assert str(err.value) == 'check_new_position: Can not go out of the map'
+            check_new_position(x, y, pos_o, map)
+        assert str(err.value) == 'Can not go out of the map'
 
 def test_check_new_position_invalid():
     MAP = [
@@ -62,5 +59,17 @@ def test_check_new_position_invalid():
         [None, None, None],
     ]
     with pytest.raises(ValueError) as err:
-        check_new_position(MAP, 0, 1)
-    assert str(err.value) == 'check_new_position: Position already occupied by another mower'
+        check_new_position(0, 1, "N", MAP)
+    assert str(err.value) == 'Position already occupied by another mower'
+
+def test_check_new_position_invalid_orientation():
+    NEW_POSITION = [
+        (2, 2, "A", generate_empty_map()),
+        (1, 10, "F", generate_empty_map()),
+        (9, 5, "G", None),
+    ]
+    for POSITION in NEW_POSITION:
+        pos_x, pos_y, pos_o, map = POSITION
+        with pytest.raises(ValueError) as err:
+            check_new_position(pos_x, pos_y, pos_o, map)
+        assert str(err.value) == 'Invalid orientation. Got %s, expected one of [N, E, S, W]' % pos_o
