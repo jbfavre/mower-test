@@ -154,13 +154,13 @@ def get_next_orientation(orientation, move):
         raise ValueError(
             "Invalid orientation. Got %s, expected one of [N, E, S, W]" % orientation
         )
-    offset = orientation_index
+    new_orientation_index = orientation_index
     if move == "L":
-        offset = orientation_index - 1
+        new_orientation_index = orientation_index - 1
     if move == "R":
-        offset = orientation_index + 1
+        new_orientation_index = orientation_index + 1
 
-    return orientation_list[(len(orientation_list) + offset) % len(orientation_list)]
+    return orientation_list[new_orientation_index % len(orientation_list)]
 
 def get_next_position(new_x, new_y, orientation):
     """ Compute next mower position
@@ -218,7 +218,7 @@ def move_mower(lawn_map, mower):
         if move in ["L", "R"]:
             # Updating orientation without moving
             # Get new orientation
-            new_orientation = get_next_orientation(new_orientation, move)
+            new_orientation = get_next_orientation(orientation, move)
         elif move in ["F"]:
             # Moving without changing orientation
             # Get new position
