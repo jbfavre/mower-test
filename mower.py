@@ -91,7 +91,7 @@ def init_mower(lawn_map, mower_initial_position, mower_moves_list):
     # Initialize mower
     mower = {"position": mower_initial_position, "movelist": mower_moves_list}
     # Mark mower's position occupied on the map
-    lawn_map[pos_x][pos_y] = 1
+    lawn_map[pos_x][pos_y] = mower_initial_position
 
     return lawn_map, mower
 
@@ -108,9 +108,10 @@ def check_new_position(pos_x, pos_y, pos_o, lawn_map=None):
         AssertionError exception
 
     Parameters:
-        lawn_map (list): list of lawn columns
         pos_x (int): mower's horizontal coordinate
         pos_y (int): mower's vertical coordinate
+        pos_o (str): mower's orientation
+        lawn_map (list): list of lawn columns
     """
 
     if not isinstance(pos_x, int) or not isinstance(pos_y, int):
@@ -192,7 +193,7 @@ def get_next_position(new_x, new_y, orientation):
             "Invalid orientation. Got %s, expected one of [N, E, S, W]" % orientation
         )
 
-    return str(new_x), str(new_y)
+    return new_x, new_y
 
 def move_mower(lawn_map, mower):
     """ Compute new mower's position or orientation, update lawn_map and mower
@@ -317,7 +318,7 @@ def main():
                 continue
             # Mower's moves' list processed.
             # Print final mower's position & orientation
-            print(" ".join(mower["position"]))
+            print(" ".join(str(i) for i in mower["position"]))
 
 if __name__ == '__main__':
     main()

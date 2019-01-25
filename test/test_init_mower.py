@@ -18,7 +18,7 @@ def test_init_mower(mock_check_new_position):
         mock_check_new_position.return_value = None
         lawn_map, mower = init_mower(empty_map, mower_initial_position, mower_moves_list)
     mock_check_new_position.assert_called_with(1, 3, "E", empty_map)
-    assert lawn_map[1][3] == 1
+    assert lawn_map[1][3] == (1, 3, 'E')
     assert mower == {"position": (1, 3, "E"), "movelist":"LFLFLFLFF"}
 
 @mock.patch("mower.check_new_position")

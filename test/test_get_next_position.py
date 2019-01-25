@@ -36,8 +36,8 @@ from mower import get_next_position
 
 def test_get_next_position():
     data = [
-        (0, 0, "N", ('0', '1')),
-        (5, 5, "W", ('4', '5'))
+        (0, 0, "N", (0, 1)),
+        (5, 5, "W", (4, 5))
     ]
     for arguments in data:
         pos_x, pos_y, orientation, expected_result = arguments
